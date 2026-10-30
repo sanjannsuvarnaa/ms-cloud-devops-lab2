@@ -60,15 +60,29 @@ Add `screenshot.png`: the page at `http://localhost:8080` with at least two Pods
 
 For each trap, write what you saw and why it happened, in two or three lines of your own words.
 
-Trap 1: The Local Image I built the Docker image locally using hello-app:v1 and created a Deployment with that image. Unlike the expected ImagePullBackOff, all three Pods started successfully because Docker Desktop Kubernetes was able to access the local image. I then tagged and pushed the image to Docker Hub and used sudhiths/hello-app:v1 for the final Deployment.
- 
-Trap 2: The Selector Typo I changed the Service selector from app: hello-app to app: helo-app. The Service still existed, but its EndpointSlice became empty because no Pod had the incorrect label. After restoring app: hello-app and applying the manifest, the EndpointSlice listed all four Pods again. 
+**Trap 1 — The local image**
 
-Trap 3: The Wrong TargetPort I changed targetPort from 80 to 8080. The EndpointSlice still listed all four Pods, but the port changed to 8080. The application stopped responding because nginx listens on port 80. Restoring targetPort: 80 fixed the issue.
- 
-Trap 4:Trap 4: the EXTERNAL-IP is inside Docker Desktop’s private network, so use localhost.
+I built the Docker image locally using `hello-app:v1` and created a Deployment with that image. Unlike the expected `ImagePullBackOff`, all three Pods started successfully because Docker Desktop Kubernetes was able to access the local image. I then tagged and pushed the image to Docker Hub and used `sudhiths/hello-app:v1` for the final Deployment.
 
-6. Your YAML vs the generated YAML
+**Trap 2 — The selector typo**
+
+I changed the Service selector from `app: hello-app` to `app: helo-app`. The Service still existed, but its EndpointSlice became empty because no Pod had the incorrect label. After restoring `app: hello-app` and applying the manifest, the EndpointSlice listed all four Pods again.
+
+**Trap 3 — The wrong targetPort**
+
+I changed `targetPort` from 80 to 8080. The EndpointSlice still listed all four Pods, but the port changed to 8080. The application stopped responding because nginx listens on port 80. Restoring `targetPort: 80` fixed the issue.
+
+**Trap 4 — The EXTERNAL-IP address**
+
+Trap 4: the EXTERNAL-IP is inside Docker Desktop’s private network, so use localhost.
+
+## 6. Your YAML vs the generated YAML
+
 Name two fields in the `--dry-run=client -o yaml` output that were not in your file. Why does your file still work without them?
 
-Two fields present in the generated Deployment YAML but not in my manifest are: 1. strategy: — Defines the Deployment update strategy. When omitted, Kubernetes uses the default RollingUpdate strategy. 2. resources: — Represents container resource requests and limits. Since no resource requests or limits were specified, the container uses no explicitly configured CPU or memory requests or limits. My YAML still works because these fields are optional. Kubernetes applies the default Deployment strategy, while resource requests and limits can remain unspecified. 
+Two fields present in the generated Deployment YAML but not in my manifest are:
+
+1. **`strategy: {}`** — Defines the Deployment update strategy. When omitted, Kubernetes uses the default `RollingUpdate` strategy.
+2. **`resources: {}`** — Represents container resource requests and limits. Since no resource requests or limits were specified, the container uses no explicitly configured CPU or memory requests or limits.
+
+My YAML still works because these fields are optional. Kubernetes applies default behavior for the Deployment strategy, while resource requests and limits can remain unspecified.
